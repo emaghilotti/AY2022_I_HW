@@ -10,6 +10,6 @@
     uint8_t Slave_Buffer[SLAVE_BUFFER_SIZE];
        
     void SetBuffer(int32 average_temp, int32 average_ldr);
-    void reset_of_the_timer();
+    void update_timer_period();
        
 #endif

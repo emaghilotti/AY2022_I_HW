@@ -21,6 +21,7 @@ w 08 01 28 p   ;given 5 samples and 50Hz trasmission data rate required
 
 
 ;Reading sensors samples from control register 0x03 to 0x06 -----------------------
+; (to be selected all at once and press Repeat button)
 w 08 03 p        
 r 08 @1TEMP p
 w 08 04 p

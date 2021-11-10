@@ -1,24 +1,3 @@
-/*
-BRIDGE CONTROL PANEL
-w 08 00 14 p   ;set # samples (5) + both stop
-w 08 00 15 p   ;set # samples (5) + just temp
-w 08 00 16 p   ;set # samples (5) + just ldr
-w 08 00 17 p   ;set # samples (5) + both start
-
-w 08 01 4 p   ;set the Timer used to generate the ISR (4 ms)
-;r 08 x p
-;---- REPEAT ----
-w 08 03 p
-r 08 @1TEMP p
-w 08 04 p
-r 08 @0TEMP p
-w 08 05 p
-r 08 @1LDR p
-w 08 06 p
-r 08 @0LDR p
-;-----------------
-*/
-
 /* Assignment academic year 2021-2022 - I semester
    Group 9
    Emanuele Ghilotti
@@ -41,7 +20,7 @@ uint8_t status;                     // sampling channel selection: 0b00 --> devi
                                     //                             0b10 --> sample of Ch1
                                     //                             0b11 --> sample of Ch0 and Ch1
 
-#define WHO_AM_I          0xBC  
+#define WHO_AM_I          0xBC      // as per the assignment
 #define STOP_BOTH         0x00      // 0b00 --> device stopped
 #define ONLY_TEMP         0x01      // 0b01 --> sample of Ch0
 #define ONLY_LDR          0x02      // 0b10 --> sample of Ch1
@@ -71,8 +50,7 @@ int main(void)
     
     for(;;)
     {
-        if (Timer_ReadPeriod()==40)Pin_LED_Write(1);
-        else Pin_LED_Write(0);
+
         // if the all samples to be averaged are already collected or the timer period is zero:
         //  - number of samples are updated
         //  - variables are reset
@@ -80,8 +58,8 @@ int main(void)
         if(counter == 0 || Timer_ReadPeriod() == 0)
         {            
             number_of_samples = (Slave_Buffer[0] & 0b00111100) >> 2;    // updates the number of samples
-            if (number_of_samples>15) number_of_samples=15;
-            if (number_of_samples<0) number_of_samples=0;
+            if (number_of_samples>15) number_of_samples=15;             // check the number of samples size is within 4 bit
+            if (number_of_samples<0) number_of_samples=0;               // to prevent negative values
             
             
             if(number_of_samples == 0){     // if the number of samples is set to zero, no sampling is performed
@@ -92,21 +70,22 @@ int main(void)
             average_ldr = 0;    
             sum_temp = 0;
             sum_ldr = 0;
-            reset_of_the_timer();   // timer is reset (see I2C_Communication.c)
+            update_timer_period();   // update timer period (see I2C_Communication.c)
         }
         
  
-        status = (Slave_Buffer[0] & 0b00000011);        // status is updated 
+        status = (Slave_Buffer[0] & 0b00000011);        // status variable is updated through a mask
+                                                        // to pick the first two status bits of the Control Register 0
         
         switch (status){   
             
             case STOP_BOTH:         // 0b00 --> device stopped                                  
                 ADC_Stop();         // ADC stops
-                //Pin_LED_Write(0);   // LED is turned off  
+                Pin_LED_Write(0);   // LED is turned off  
                 break;
                             
             case ONLY_TEMP:                         // 0b01 --> sample of Ch0                                    
-                //Pin_LED_Write(0);                   // LED is turned off                                                       
+                Pin_LED_Write(0);                   // LED is turned off                                                       
                 if(counter < number_of_samples)     // until desired number of samples is reached        
                 {   
                     while(flag_ISR==0){};   // only when the ISR occurs the following code is executed
@@ -125,7 +104,7 @@ int main(void)
                                                       
             case ONLY_LDR:                          // 0b10 --> sample of Ch1  
                                                     // (previous algorithm applies to ONLY_LDR case)                                  
-                //Pin_LED_Write(0);                                                                   
+                Pin_LED_Write(0);                                                                   
                 if(counter < number_of_samples)             
                 {                              
                     while(flag_ISR==0){};                                                      
@@ -144,7 +123,7 @@ int main(void)
                                 
             case START_BOTH:                        // 0b11 --> sample of both channels  
                                                     // (previous algorithm applies to START_BOTH case)                            
-                //Pin_LED_Write(1);                       
+                Pin_LED_Write(1);                       
                 if(counter < number_of_samples)
                 {                                      
                     while(flag_ISR==0){};

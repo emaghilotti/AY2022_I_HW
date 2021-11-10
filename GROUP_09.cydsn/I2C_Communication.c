@@ -14,13 +14,11 @@ void SetBuffer(int32 average_temp, int32 average_ldr){
         
 }
 
-void reset_of_the_timer(){
-    Timer_WritePeriod(Slave_Buffer[1]);// set new timer period
-     
+void update_timer_period(){
+    Timer_WritePeriod(Slave_Buffer[1]);     // set new timer period    
     Reset_timer_Write(1);                   // timer reset
     CyDelay(1);
-    Reset_timer_Write(0);     
-    //Timer_ReadStatusRegister();   
+    Reset_timer_Write(0);        
     Timer_Start();                          // timer start
 }
 
