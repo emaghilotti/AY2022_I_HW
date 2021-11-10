@@ -5,10 +5,10 @@
 
 ;Control Register 0 setting ------------------------------------------------------
 ;Choose number of samples (in this case is set to 5) and channel selection 
-w 08 00 14 p   ;set # samples (default 5) + stop sensor
-w 08 00 15 p   ;set # samples (default 5) + start just temperature sensor
-w 08 00 16 p   ;set # samples (default 5) + start just ldr sensor
-w 08 00 17 p   ;set # samples (default 5) + start both sensors
+w 08 00 14 p   ;set # samples (5) + stop sensor
+w 08 00 15 p   ;set # samples (5) + start just temperature sensor
+w 08 00 16 p   ;set # samples (5) + start just ldr sensor
+w 08 00 17 p   ;set # samples (5) + start both sensors
 ;---------------------------------------------------------------------------------
 
 ;Control Register 1 setting ------------------------------------------------------
