@@ -1,0 +1,32 @@
+;Group 9
+;Bridge Control Panel code
+
+;08 is the I2C slave adress
+
+;Control Register 0 setting ------------------------------------------------------
+;Choose number of samples (in this case is set to 5) and channel selection 
+w 08 00 14 p   ;set # samples (default 5) + stop sensor
+w 08 00 15 p   ;set # samples (default 5) + start just temperature sensor
+w 08 00 16 p   ;set # samples (default 5) + start just ldr sensor
+w 08 00 17 p   ;set # samples (default 5) + start both sensors
+;---------------------------------------------------------------------------------
+
+;Control Register 1 setting ------------------------------------------------------
+;Choose the frequency of the ISR required to sample the analog channels 
+w 08 01 28 p   ;given 5 samples and 50Hz trasmission data rate required
+               ;the timer period to trigger the ISR is set to 4 ms.
+               ;Knowing that the clock frequency is 10kHz, in order for the timer
+               ;to overflow every 4ms, timer counts up to 40 (0x28)
+;---------------------------------------------------------------------------------
+
+
+;Reading sensors samples from control register 0x03 to 0x06 -----------------------
+w 08 03 p        
+r 08 @1TEMP p
+w 08 04 p
+r 08 @0TEMP p
+w 08 05 p
+r 08 @1LDR p
+w 08 06 p
+r 08 @0LDR p
+;-----------------

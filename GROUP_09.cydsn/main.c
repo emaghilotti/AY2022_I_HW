@@ -71,6 +71,8 @@ int main(void)
     
     for(;;)
     {
+        if (Timer_ReadPeriod()==40)Pin_LED_Write(1);
+        else Pin_LED_Write(0);
         // if the all samples to be averaged are already collected or the timer period is zero:
         //  - number of samples are updated
         //  - variables are reset
@@ -78,6 +80,9 @@ int main(void)
         if(counter == 0 || Timer_ReadPeriod() == 0)
         {            
             number_of_samples = (Slave_Buffer[0] & 0b00111100) >> 2;    // updates the number of samples
+            if (number_of_samples>15) number_of_samples=15;
+            if (number_of_samples<0) number_of_samples=0;
+            
             
             if(number_of_samples == 0){     // if the number of samples is set to zero, no sampling is performed
                 status = STOP_BOTH;
@@ -97,11 +102,11 @@ int main(void)
             
             case STOP_BOTH:         // 0b00 --> device stopped                                  
                 ADC_Stop();         // ADC stops
-                Pin_LED_Write(0);   // LED is turned off  
+                //Pin_LED_Write(0);   // LED is turned off  
                 break;
                             
             case ONLY_TEMP:                         // 0b01 --> sample of Ch0                                    
-                Pin_LED_Write(0);                   // LED is turned off                                                       
+                //Pin_LED_Write(0);                   // LED is turned off                                                       
                 if(counter < number_of_samples)     // until desired number of samples is reached        
                 {   
                     while(flag_ISR==0){};   // only when the ISR occurs the following code is executed
@@ -120,7 +125,7 @@ int main(void)
                                                       
             case ONLY_LDR:                          // 0b10 --> sample of Ch1  
                                                     // (previous algorithm applies to ONLY_LDR case)                                  
-                Pin_LED_Write(0);                                                                   
+                //Pin_LED_Write(0);                                                                   
                 if(counter < number_of_samples)             
                 {                              
                     while(flag_ISR==0){};                                                      
@@ -139,7 +144,7 @@ int main(void)
                                 
             case START_BOTH:                        // 0b11 --> sample of both channels  
                                                     // (previous algorithm applies to START_BOTH case)                            
-                Pin_LED_Write(1);                       
+                //Pin_LED_Write(1);                       
                 if(counter < number_of_samples)
                 {                                      
                     while(flag_ISR==0){};
